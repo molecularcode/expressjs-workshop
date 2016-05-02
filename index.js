@@ -51,17 +51,25 @@ function mathFn(oper, num1, num2) {
     return result;
   }
   else {
-    return "error - please choose an operator from 'add, sub, mult, div";
+    return "error";
   }
 }
 
 app.get('/op/:operation/:num1/:num2', function(request, response) {
   var oper = request.params.operation;
-  var num1 = request.params.num1;
-  var num2 = request.params.num2;
+  var num1 = Number(request.params.num1);
+  var num2 = Number(request.params.num2);
+  console.log(typeof num2);
   
   var result = mathFn(oper, num1, num2);
-  response.send(result);
+  
+  if (result === "error" ) {
+    response.status(404); 
+    response.send("<h2>error - please choose an operator from 'add, sub, mult, div'</h2>");
+  }
+  else {
+    response.send(result);
+  }
 });
 
 // => /op/add/31/11

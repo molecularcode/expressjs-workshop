@@ -174,6 +174,70 @@ app.get('/createContent', function(req, res) {
 });
 
 
+// Exercise 6: Receiving data from our form
+// -----------------------------------------------------------------------------
+//In this exercise, we will write our first POST endpoint. The resource will be the same, /createContent, but we will be writing a second endpoint using app.post instead.
+
+// Once you are familiar with the contents of req.body, use a version of your createPost MySQL function to create a new post that has the URL and Title passed to you in the HTTP request. For the moment, set the user as being ID#1, or "John Smith".
+
+// Once the data is inserted successfully, you have a few choices of what to do in your callback:
+
+//     Use response.send("OK") to tell the browser that everything went well
+//     Use response.send to send the actual post object that was created (received from the createPost function)
+//     Use response.redirect to send the user back to the /posts page you setup in a previous exercise
+//     challenge :) Using a response.redirect, redirect the user to the URL /posts/:ID where :ID is the ID of the newly created post. This is more challenging because now you have to implement the /posts/:ID URL! See if you can do that and return a single post only.
+
+
+// load the middleware body-parser
+var bodyParser = require('body-parser');
+app.use(bodyParser());
+
+function createPost (post, callback) {
+  connection.query(
+    'INSERT INTO `posts` (`userId`, `title`, `url`, `createdAt`, `subredditId`) VALUES (?, ?, ?, ?, ?)', [post.userId, post.title, post.url, null, post.subredditId],
+    function(err, result) {
+      if (err) {
+        callback(err);
+      }
+      else {
+        /* Post inserted successfully. Let's use the result.insertId to retrieve the post and send it to the caller! */
+        connection.query(
+          'SELECT `id`,`title`,`url`,`userId`, `subredditId`, `createdAt`, `updatedAt` FROM `posts` WHERE `id` = ?', [result.insertId],
+          function(err, result) {
+            if (err) {
+              callback(err);
+            }
+            else {
+              callback(null, result[0]);
+            }
+          }
+        );
+      }
+    }
+  );
+}
+
+app.post('/createContent', function(req, res) {
+  var newURL = req.body.url;
+  var newTitle = req.body.title;
+  createPost({
+      title: newTitle,
+      url: newURL,
+      userId: 1,
+      subredditId: 8
+    }, function(err, post) {
+      if (err) {
+        res.send('<h2>ERROR: post not created!</h2>' + err);
+      }
+      else {
+        res.redirect('/posts');
+      }
+    });
+});
+
+
+
+
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */
 
 // Boilerplate code to start up the web server

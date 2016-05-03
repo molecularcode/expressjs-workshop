@@ -132,6 +132,9 @@ var connection = mysql.createConnection({
   debug    : false
 });
 
+// npm moment - library for formatting date/time
+var moment = require('moment');
+
 // function to take a callback and return the result of a DB query as an array of objects
 function getPosts(callback) {
   connection.query(`
@@ -171,7 +174,7 @@ function postToHTML(result) {
       // post literial using ` and ${} to avoid having to close quotes every time switching from html to JS variable
       `<li class="content-item" style="list-style-type: none;">
         <h2 class="content-item__title" style="margin-bottom: 0px;"><a href="${res.url}" style="color: #B40404; text-decoration:none;">${res.title}</a></h2>
-        <p style="margin-top: 0px;">Created by ${res.username} </p>
+        <p style="margin-top: 0px;">Created by ${res.username} ${moment(res.createdAt).fromNow()}</p>
       </li>`);
   });
   return (htmlStart + postHTML.join('') + htmlEnd);

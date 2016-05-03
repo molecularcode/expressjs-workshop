@@ -1,4 +1,6 @@
+// node module
 var express = require('express');
+// create an instance of the web server
 var app = express();
 
 
@@ -6,9 +8,11 @@ var app = express();
 // -----------------------------------------------------------------------------
 // Create a web server that can listen to requests for /hello, and respond with some HTML that says <h1>Hello World!</h1>
 
-// display a sting (including html) on a webpage
+// display a sting (including html) on a webpage - url - /hello
 app.get('/hello', function (req, res) {
-  res.send('<h1>Hello World!</h1>');
+  // show http header object with info like visitor IP, lang prefs etc.
+  console.log(req.headers);
+  res.send('<h1 style="color:#5F04B4;">Hello World!</h1>');
 });
 
 
@@ -18,10 +22,10 @@ app.get('/hello', function (req, res) {
 
 // function to take a string passed as a parameter in a url and return a concatonated string
 function sayHelloTo(name) {
-    return "<h1>hello " + name + "!</h1>";
+    return "<h1>hello <i style='color: #5F04B4;'>" + name + "</i>!</h1>";
 }
 
-// display a concatonated string
+// display a concatonated string - url - /hello/Alex
 app.get('/hello/:name', function(request, response) {
     var name = request.params.name;
     var result = sayHelloTo(name);
@@ -61,7 +65,7 @@ function mathFn(oper, num1, num2) {
   }
 }
 
-// display an object
+// display an object - url - /op/add/31/11
 app.get('/op/:operation/:num1/:num2', function(request, response) {
   var oper = request.params.operation;
   var num1 = Number(request.params.num1);
@@ -79,7 +83,6 @@ app.get('/op/:operation/:num1/:num2', function(request, response) {
   }
 });
 
-// => /op/add/31/11
 // => operator	"add"
 //    firstOperand	"31"
 //    secondOperand	"11"

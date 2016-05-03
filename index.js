@@ -6,6 +6,7 @@ var app = express();
 // -----------------------------------------------------------------------------
 // Create a web server that can listen to requests for /hello, and respond with some HTML that says <h1>Hello World!</h1>
 
+// display a sting (including html) on a webpage
 app.get('/hello', function (req, res) {
   res.send('<h1>Hello World!</h1>');
 });
@@ -15,10 +16,12 @@ app.get('/hello', function (req, res) {
 // -----------------------------------------------------------------------------
 // Create a web server that can listen to requests for /hello?name=firstName, and respond with some HTML that says <h1>Hello _name_!</h1>. For example, if a client requests /hello/John, the server should respond with <h1>Hello John!</h1>.
 
+// function to take a string passed as a parameter in a url and return a concatonated string
 function sayHelloTo(name) {
     return "<h1>hello " + name + "!</h1>";
 }
 
+// display a concatonated string
 app.get('/hello/:name', function(request, response) {
     var name = request.params.name;
     var result = sayHelloTo(name);
@@ -30,6 +33,7 @@ app.get('/hello/:name', function(request, response) {
 // -----------------------------------------------------------------------------
 // Create a web server that can listen to requests for /calculator/:operation?num1=XX&num2=XX and respond with a JSON object that looks like the following. For example, /op/add?num1=31&num2=11:
 
+// function to do 4 types of math operator on 2 numbers, takes the opperator as a string and 2 numbers, all as URL parameters, returns an object with new key-value
 function mathFn(oper, num1, num2) {
   var result = {
     "operator": oper,
@@ -57,6 +61,7 @@ function mathFn(oper, num1, num2) {
   }
 }
 
+// display an object
 app.get('/op/:operation/:num1/:num2', function(request, response) {
   var oper = request.params.operation;
   var num1 = Number(request.params.num1);
@@ -99,6 +104,7 @@ var connection = mysql.createConnection({
   debug    : false
 });
 
+// function to take a callback and return the result of a DB query as an array of objects
 function getPosts(callback) {
   connection.query(`
     SELECT p.id AS pId, p.title AS pTitle, p.url AS pURL, p.userId AS pUserId, p.createdAt AS pCreatedAt, p.updatedAt AS pUpdatedAt, u.username AS uUsername
@@ -128,6 +134,7 @@ function getPosts(callback) {
   });
 }
 
+// function to take an aray of objects and return a single string, including HTML
 function postToHTML(result) {
   var htmlStart = '<div id="contents"> <h1>List of contents</h1> <ul class="contents-list">';
   var htmlEnd = '</ul> </div>';
@@ -141,6 +148,7 @@ function postToHTML(result) {
   return (htmlStart + postHTML.join('') + htmlEnd);
 }
 
+// first get the result of the DB query as an array of objects, then transform that into a single string, including HTML
 app.get('/posts', function(req, res) {
   getPosts(function(err, result) {
     if (err) {
@@ -157,18 +165,19 @@ app.get('/posts', function(req, res) {
 // -----------------------------------------------------------------------------
 // In this exercise, we're going to use Express to simply send an HTML file to our user containing a <form>
 
+// get the directory path for the file
 app.get('/createContent', function(req, res) {
   var options = {
     root: __dirname + '/'
   };
 
-  //var fileName = req.params.name;
+  // send the html file to the webpage
   res.sendFile('form.html', options, function(err) {
     if (err) {
       res.status(500).send('<h2>ERROR!</h2>' + err);
     }
     else {
-      console.log('Sent: form.html');
+      return;
     }
   });
 });
@@ -192,6 +201,7 @@ app.get('/createContent', function(req, res) {
 var bodyParser = require('body-parser');
 app.use(bodyParser());
 
+// function to take the post object created by filling in and submitting the form.html page and insert it in to the DB
 function createPost (post, callback) {
   connection.query(
     'INSERT INTO `posts` (`userId`, `title`, `url`, `createdAt`, `subredditId`) VALUES (?, ?, ?, ?, ?)', [post.userId, post.title, post.url, null, post.subredditId],
@@ -217,6 +227,7 @@ function createPost (post, callback) {
   );
 }
 
+// take the inputs from filling in and submitting the form.html form and create a new post. If successful, redirect to the /posts page showing 5 most recent posts
 app.post('/createContent', function(req, res) {
   var newURL = req.body.url;
   var newTitle = req.body.title;
@@ -234,8 +245,6 @@ app.post('/createContent', function(req, res) {
       }
     });
 });
-
-
 
 
 /* YOU DON'T HAVE TO CHANGE ANYTHING BELOW THIS LINE :) */

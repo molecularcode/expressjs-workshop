@@ -3,6 +3,21 @@ var express = require('express');
 // create an instance of the web server
 var app = express();
 
+// .use creates middware to process the get request and do something to it, in this case show header for all requests
+app.use(function(req, res, next){
+  console.log(req.headers);
+  // next REQUIRED so that the middleware doesn't block the stream and allows the request to move on
+  next();
+});
+
+// install then use express cookie-parser to parse cookie info instead of receiving a single long string
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
+app.use(function(req, res, next){
+  console.log(req.cookies);
+  next();
+});
+
 
 // Exercise 1: Getting started!
 // -----------------------------------------------------------------------------
@@ -10,9 +25,16 @@ var app = express();
 
 // display a sting (including html) on a webpage - url - /hello
 app.get('/hello', function (req, res) {
-  // show http header object with info like visitor IP, lang prefs etc.
-  console.log(req.headers);
-  res.send('<h1 style="color:#5F04B4;">Hello World!</h1>');
+  // console.log to show http header object with info like visitor IP, lang prefs etc.
+  // console.log(req.headers);
+  
+  // stored a cookie when first visited /hello/Alex, now /hello checks for a value and returns a different response depending on the cookie value
+  if (req.cookies.nameOfTheUser) {
+    res.send("Welcome back " + req.cookies.nameOfTheUser);
+  }
+  else {
+    res.send('<h1 style="color:#5F04B4;">Hello World!</h1>');
+  }
 });
 
 
@@ -28,6 +50,10 @@ function sayHelloTo(name) {
 // display a concatonated string - url - /hello/Alex
 app.get('/hello/:name', function(request, response) {
     var name = request.params.name;
+    
+    // create cookie with variable name and value, which stores both as one string i.e. cookie: 'nameOfTheUser=Alex'. Use npm cookie-parser to parse the info into a more friendly format
+    response.cookie('nameOfTheUser', name);
+    
     var result = sayHelloTo(name);
     response.send(result);
 });
@@ -65,8 +91,8 @@ function mathFn(oper, num1, num2) {
   }
 }
 
-// display an object - url - /op/add/31/11
-app.get('/op/:operation/:num1/:num2', function(request, response) {
+// display an object - url - /calc/add/31/11
+app.get('/calc/:operation/:num1/:num2', function(request, response) {
   var oper = request.params.operation;
   var num1 = Number(request.params.num1);
   var num2 = Number(request.params.num2);
@@ -75,8 +101,7 @@ app.get('/op/:operation/:num1/:num2', function(request, response) {
   var result = mathFn(oper, num1, num2);
   
   if (result === "error" ) {
-    response.status(404); 
-    response.send("<h2>ERROR: please choose an operator from <i>'add, sub, mult, div'</i></h2>");
+    response.status(400).send("<h2>ERROR: please choose an operator from <i>'add, sub, mult, div'</i></h2>");
   }
   else {
     response.send(result);

@@ -168,9 +168,10 @@ function postToHTML(result) {
   var htmlEnd = '</ul> </div>';
   var postHTML = result.map(function(res){
     return (
-      `<li class="content-item">
-        <h2 class="content-item__title"><a href="${res.url}">${res.title}</a></h2>
-        <p>Created by ${res.username} </p>
+      // post literial using ` and ${} to avoid having to close quotes every time switching from html to JS variable
+      `<li class="content-item" style="list-style-type: none;">
+        <h2 class="content-item__title" style="margin-bottom: 0px;"><a href="${res.url}" style="color: #B40404; text-decoration:none;">${res.title}</a></h2>
+        <p style="margin-top: 0px;">Created by ${res.username} </p>
       </li>`);
   });
   return (htmlStart + postHTML.join('') + htmlEnd);
